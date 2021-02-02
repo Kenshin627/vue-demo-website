@@ -7,8 +7,6 @@
                 router
                 :default-active="this.$route.path"
                 class=""
-                @open="handleOpen"
-                @close="handleClose"
                 background-color="#313743"
                 text-color="#fff"
                 active-text-color="#ffd04b">
