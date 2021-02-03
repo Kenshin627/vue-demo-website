@@ -40,15 +40,21 @@
       <el-table
         :data="categoryList"
         border
+        ref="table"
         size="mini"
         :header-cell-style="{
           'background-color': 'rgb(80, 80, 80)',
-          color: '#fff',
+          'color': '#fff',
         }"
         style="width: 100%"
         @selection-change="selectChange">
         <el-table-column width="50" type="selection"> </el-table-column>
         <el-table-column type="index" width="100" prop="prop" label="编号">
+        </el-table-column>
+        <el-table-column prop="parent.name" label="上级分类" width="180">
+          <template slot-scope="scope">
+            {{ scope.row.parent? scope.row.parent.name: 'Root' }}
+          </template>
         </el-table-column>
         <el-table-column prop="name" label="分类名称"> </el-table-column>
         <el-table-column label="操作" align="center" width="145">
@@ -91,6 +97,11 @@
         label-width="80px"
         size="mini"
       >
+        <el-form-item label="父级分类">
+            <el-select size="mini" v-model="currentCategory.parent">
+                <el-option :label="item.name" :value="item._id" v-for="item in selectList" :key="item._id"></el-option>
+            </el-select>
+        </el-form-item>
         <el-form-item label="分类名称">
           <el-input v-model="currentCategory.name"></el-input>
         </el-form-item>
@@ -103,7 +114,7 @@
   </div>
 </template>
 <script>
-import { create, list, remove, getById, edit, deleteMany } from "@/api/categories.js";
+import { create, list, remove, getById, edit, deleteMany,listAllRoot } from "@/api/categories.js";
 
 export default {
   data() {
@@ -115,18 +126,28 @@ export default {
       pagination: {
         total: 0,
         currentPage: 1,
-        size: 10,
+        size: 10
       },
-      currentCategory: {},
+      currentCategory: {
+          name: '',
+          parent: null
+      },
       categoryList: [],
       selectedIds: [],
+      selectList: []
     };
   },
   methods: {
     async save() {
-      let {
-        data: { code, text },
-      } = await this.currentCategory._id ? edit(this.currentCategory) : create(this.currentCategory);
+      let ret = null
+      if(this.currentCategory._id) {
+          ret = await edit(this.currentCategory)
+      }else{
+          ret = await create(this.currentCategory)
+      }
+      let { data: { code, text } }= ret
+      this.currentCategory = {}
+      console.log(code,text)
       if (code === 1) {
         this.dialogVisible = false;
         this.list();
@@ -143,15 +164,12 @@ export default {
       }
     },
     async list() {
-      let {
-        data: { count, listData, code, text },
-      } = await list(this.pagination);
+      let { data: { count, listData, code, text } } = await list(this.pagination)
       if (code === 1) {
-        this.categoryList = listData;
-        this.pagination.total = count;
+        this.categoryList = listData
+        this.pagination.total = count
         if(listData.length === 0 && this.pagination.currentPage > 1) {
-            console.log(`reload`)
-            this.pagination.currentPage -= 1;
+            this.pagination.currentPage -= 1
             this.list()
         }
       } else {
@@ -167,29 +185,29 @@ export default {
         cancelButtonText: "取消",
         type: "warning",
       })
-        .then(async () => {
-          let {
-            data: { code, text },
-          } = await remove(id);
-          if (code === 1) {
-            this.list();
-            this.$message({
-              type: "success",
-              message: `删除成功`,
-            });
-          } else {
-            this.$message({
-              type: "error",
-              message: text,
-            });
-          }
-        })
-        .catch(() => {
+      .then(async () => {
+        let {
+          data: { code, text },
+        } = await remove(id);
+        if (code === 1) {
+          this.list();
           this.$message({
-            type: "info",
-            message: "取消删除",
+            type: "success",
+            message: `删除成功`,
           });
+        } else {
+          this.$message({
+            type: "error",
+            message: text,
+          });
+        }
+      })
+      .catch(() => {
+        this.$message({
+          type: "info",
+          message: "取消删除",
         });
+      });
     },
     async openEdit(id) {
         let { data: { code, data } } = await getById(id)
@@ -205,17 +223,41 @@ export default {
         }
     },
     async removeSelected() {
-        await deleteMany({ ids: this.selectedIds})
+      const { data: { code, text } } =  await deleteMany({ ids: this.selectedIds})
+        if (code === 1) {
+          this.list();
+          this.$message({
+            type: "success",
+            message: `删除成功`,
+          });
+        } else {
+          this.$message({
+            type: "error",
+            message: text,
+          });
+        }
     },
     selectChange(list) {
         this.selectedIds = list.map( item =>{
             return item._id
         })
-        console.log(this.selectedIds)
+    },
+    async listRoot() {
+        let { data: { listData, code, text } } = await listAllRoot()
+      if (code === 1) {
+        this.selectList = listData
+        
+      } else {
+        this.$message({
+          type: "error",
+          message: text,
+        });
+      }
     }
   },
   created() {
     this.list();
+    this.listRoot();
   },
 };
 </script>

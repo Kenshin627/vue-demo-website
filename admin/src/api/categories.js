@@ -34,7 +34,7 @@ export function deleteMany(data) {
 //list
 export function list(query) {
     return Axios({
-        url: `categories?num=${ query.currentPage }&size=${ query.size }`,
+        url: `/categories?getRoot=0&num=${ query.currentPage }&size=${ query.size }`,
         method: 'get'
     })
 }
@@ -42,6 +42,13 @@ export function list(query) {
 export function getById(id) {
     return Axios({
         url: `/categories/${ id }`,
+        method: 'get'
+    })
+}
+//listForSelect
+export function listAllRoot() {
+    return Axios({
+        url: `/categories?getRoot=1`,
         method: 'get'
     })
 }

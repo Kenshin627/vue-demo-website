@@ -1,4 +1,4 @@
-const Category = require('../../models/categories')
+const mongoose  = require('mongoose')
 
 module.exports = app => {
     const express = require('express'),
@@ -39,8 +39,8 @@ module.exports = app => {
     })
     //edit
     router.put(path, async (req,res) => {
-        const { err } = await Category.findByIdAndUpdate(req._id, req.body)
-        if(err) {
+        const data  = await Category.findByIdAndUpdate(req.body._id, req.body)
+        if(!data) {
             res.status(500).send({
                 code: 0,
                 text: '更新失败'
@@ -69,11 +69,18 @@ module.exports = app => {
         }
     })
     //list
-    router.get(path, async (req,res) => {
+    router.get(path, (req,res) => {
         let page = parseInt(req.query.num),
             count = parseInt(req.query.size),
+            getRoot = parseInt(req.query.getRoot),
             p1 = Category.countDocuments(),
-            p2 = Category.find().skip((page - 1) * count).limit(count)
+            p2 = null
+            if(getRoot === 1){
+                p2 = Category.find({ 'parent': null })
+            }else{
+                p2 = Category.find().populate('parent').skip((page - 1) * count).limit(count)
+            }
+        
         Promise.all([p1,p2])
         .then( ([count,list]) => {
             res.send({
@@ -83,7 +90,6 @@ module.exports = app => {
                 listData: list
             })
         }).catch(err => {
-            console.log(err)
             res.status(500).send({
                 code: 0,
                 text: "获取失败"
@@ -92,10 +98,22 @@ module.exports = app => {
     })
 
     router.post(path+'/deleteMany', async (req,res) => {
-        const { ids } = req.body
-        console.log(ids)
-        const { err } = await Category.deleteMany()
+        const ids = req.body.ids.map( id => {
+            return mongoose.Types.ObjectId(id)
+        })
+        const { err } = await Category.deleteMany({ _id: { $in: ids } })
         console.log(err)
+        if(err) {
+            res.status(500).send({
+                code: 0,
+                text: "删除失败"
+            })
+        }else{
+            res.send({
+                code: 1,
+                text: '删除成功'
+            })
+        }
     })
     app.use(baseUrl,router)
 }
