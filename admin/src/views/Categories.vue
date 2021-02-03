@@ -98,7 +98,7 @@
         size="mini"
       >
         <el-form-item label="父级分类">
-            <el-select size="mini" v-model="currentCategory.parent">
+            <el-select size="mini" v-model="currentCategory.parent" placeholder="根分类">
                 <el-option :label="item.name" :value="item._id" v-for="item in selectList" :key="item._id"></el-option>
             </el-select>
         </el-form-item>
@@ -151,6 +151,7 @@ export default {
       if (code === 1) {
         this.dialogVisible = false;
         this.list();
+        this.listRoot();
         // this.pagination.currentPage = Math.floor(this.pagination.total / this.pagination.size)
         this.$message({
           type: "success",
@@ -191,6 +192,7 @@ export default {
         } = await remove(id);
         if (code === 1) {
           this.list();
+          this.listRoot();
           this.$message({
             type: "success",
             message: `删除成功`,
@@ -226,6 +228,7 @@ export default {
       const { data: { code, text } } =  await deleteMany({ ids: this.selectedIds})
         if (code === 1) {
           this.list();
+          this.listRoot();
           this.$message({
             type: "success",
             message: `删除成功`,
