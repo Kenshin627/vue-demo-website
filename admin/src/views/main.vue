@@ -2,7 +2,7 @@
     <el-container class="container">
         <el-header></el-header>
         <el-container>
-            <el-aside width="10%">
+            <el-aside width="11%">
                 <el-menu
                 router
                 :default-active="this.$route.path"

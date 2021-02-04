@@ -73,12 +73,14 @@ module.exports = app => {
         let page = parseInt(req.query.num),
             count = parseInt(req.query.size),
             getRoot = parseInt(req.query.getRoot),
+            // name = req.query.name? req.query.name : '',
             p1 = Category.countDocuments(),
-            p2 = null
+            p2 = null,
+            reg = new RegExp(req.query.name,'i')
             if(getRoot === 1){
                 p2 = Category.find({ 'parent': null })
             }else{
-                p2 = Category.find().populate('parent').skip((page - 1) * count).limit(count)
+                p2 = Category.find({ name: { $regex: reg } }).populate('parent').sort({ parent: 1}).skip((page - 1) * count).limit(count)
             }
         
         Promise.all([p1,p2])
@@ -90,6 +92,7 @@ module.exports = app => {
                 listData: list
             })
         }).catch(err => {
+            console.log(err)
             res.status(500).send({
                 code: 0,
                 text: "获取失败"

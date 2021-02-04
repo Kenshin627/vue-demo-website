@@ -9,17 +9,18 @@
       </el-breadcrumb>
     </el-row>
     <el-row class="queryContainer">
-      <el-form :inline="true" :model="query" class="queryForm" size="mini">
+      <el-form :inline="true" :model="pagination" class="queryForm" size="mini">
         <el-form-item label="">
           <el-input
             type="text"
-            v-model="query.name"
+            v-model="pagination.name"
             placeholder="分类关键字..."
           >
             <el-button
               type="primary"
               slot="append"
               icon="el-icon-search"
+              @click="list"
             ></el-button>
           </el-input>
         </el-form-item>
@@ -96,13 +97,15 @@
         :model="currentCategory"
         label-width="80px"
         size="mini"
+        :rules="rules"
+        status-icon
       >
         <el-form-item label="父级分类">
             <el-select size="mini" v-model="currentCategory.parent" placeholder="根分类">
                 <el-option :label="item.name" :value="item._id" v-for="item in selectList" :key="item._id"></el-option>
             </el-select>
         </el-form-item>
-        <el-form-item label="分类名称">
+        <el-form-item label="分类名称" prop="name">
           <el-input v-model="currentCategory.name"></el-input>
         </el-form-item>
         <el-form-item>
@@ -120,17 +123,20 @@ export default {
   data() {
     return {
       dialogVisible: false,
-      query: {
-        name: "",
-      },
       pagination: {
         total: 0,
         currentPage: 1,
-        size: 10
+        size: 10,
+        name: ''
       },
       currentCategory: {
           name: '',
           parent: null
+      },
+      rules: {
+        name: [
+            { required: true, message: '请输入分类名称', trigger: 'blur' },
+        ],
       },
       categoryList: [],
       selectedIds: [],
@@ -138,31 +144,37 @@ export default {
     };
   },
   methods: {
-    async save() {
-      let ret = null
-      if(this.currentCategory._id) {
-          ret = await edit(this.currentCategory)
-      }else{
-          ret = await create(this.currentCategory)
-      }
-      let { data: { code, text } }= ret
-      this.currentCategory = {}
-      console.log(code,text)
-      if (code === 1) {
-        this.dialogVisible = false;
-        this.list();
-        this.listRoot();
-        // this.pagination.currentPage = Math.floor(this.pagination.total / this.pagination.size)
-        this.$message({
-          type: "success",
-          message: text,
-        });
-      } else {
-        this.$message({
-          type: "error",
-          message: text,
-        });
-      }
+      save() {
+      this.$refs.form.validate(async (valid) => {
+        if(valid) {
+          let ret = null
+          if(this.currentCategory._id) {
+              ret = await edit(this.currentCategory)
+          }else{
+              ret = await create(this.currentCategory)
+          }
+          let { data: { code, text } }= ret
+          this.currentCategory = {}
+          console.log(code,text)
+          if (code === 1) {
+            this.dialogVisible = false;
+            this.list();
+            this.listRoot();
+            // this.pagination.currentPage = Math.floor(this.pagination.total / this.pagination.size)
+            this.$message({
+              type: "success",
+              message: text,
+            });
+          } else {
+            this.$message({
+              type: "error",
+              message: text,
+            });
+          }
+        }else{
+          return false
+        }
+      })
     },
     async list() {
       let { data: { count, listData, code, text } } = await list(this.pagination)
@@ -224,8 +236,14 @@ export default {
             })
         }
     },
-    async removeSelected() {
-      const { data: { code, text } } =  await deleteMany({ ids: this.selectedIds})
+    removeSelected() {
+      this.$confirm('此操作将批量删除，是否继续？','警告',{
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+      .then(async () => {
+        const { data: { code, text } } =  await deleteMany({ ids: this.selectedIds})
         if (code === 1) {
           this.list();
           this.listRoot();
@@ -239,6 +257,13 @@ export default {
             message: text,
           });
         }
+      })
+      .catch( () => {
+        this.$message({
+          type:'info',
+          message: '取消删除'
+        })
+      })
     },
     selectChange(list) {
         this.selectedIds = list.map( item =>{
@@ -267,16 +292,17 @@ export default {
 <style scoped>
 .queryContainer {
   box-sizing: border-box;
-  border: 1px solid rgba(231, 231, 231, 0.5);
-  padding: 15px 15px;
+  padding: 15px 15px 15px 1px;
   border-radius: 4px;
   margin-top: 30px;
   margin-bottom: 30px;
   box-shadow: 1px 1px 3px 0 #e6e6e6;
   height: 70px;
+  
 }
 .queryForm {
   color: rgb(80, 80, 80);
+  padding-top: 10px;
 }
 .table {
   margin-bottom: 30px;
@@ -287,4 +313,5 @@ export default {
 >>> .el-pagination.is-background .el-pager li:not(.disabled):hover {
   color: #313743;
 }
+
 </style>

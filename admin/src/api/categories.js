@@ -33,8 +33,10 @@ export function deleteMany(data) {
 }
 //list
 export function list(query) {
+    let base = `/categories?getRoot=0&num=${ query.currentPage }&size=${ query.size }`
+    base += query.name? `&name=${query.name}` : ''
     return Axios({
-        url: `/categories?getRoot=0&num=${ query.currentPage }&size=${ query.size }`,
+        url: base,
         method: 'get'
     })
 }
