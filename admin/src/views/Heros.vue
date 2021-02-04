@@ -52,7 +52,12 @@
         <el-table-column width="50" type="selection"> </el-table-column>
         <el-table-column type="index" width="100" prop="prop" label="编号">
         </el-table-column>
-        <el-table-column prop="name" label="英雄名称"> </el-table-column>
+        <el-table-column prop="name" label="英雄名称"></el-table-column>
+         <el-table-column prop="avator" label="头像" width="120" align="center">
+             <template slot-scope="scope">
+                 <img :src="scope.row.avator" alt="" class="avatorImg">
+             </template>
+         </el-table-column>
         <el-table-column label="操作" align="center" width="145">
           <template slot-scope="scope">
             <el-button-group>
@@ -349,6 +354,11 @@ export default {
     width: 100px;
     height: 100px;
     display: block;
+  }
+  .avatorImg{
+      width: 45px;
+      height: 45px;
+      border: 1px solid #ccc;
   }
 
 </style>
