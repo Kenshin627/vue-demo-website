@@ -54,3 +54,5 @@ export function listAllRoot() {
         method: 'get'
     })
 }
+
+export const uploadURL = `http://localhost:3001/api/admin/heros/upload`

@@ -86,7 +86,7 @@
       >
       </el-pagination>
     </el-row>
-    <el-dialog title="英雄详情" :visible.sync="dialogVisible" width="200">
+    <el-dialog title="英雄详情" :visible.sync="dialogVisible" width="200" @close="dialogClose">
       <el-form
         ref="form"
         :model="currentHero"
@@ -98,6 +98,22 @@
         <el-form-item label="英雄名称" prop="name">
           <el-input v-model="currentHero.name"></el-input>
         </el-form-item>
+        <el-form-item label="头像">
+            <el-upload
+            class="avatar-uploader"
+            :action="uploadURL"
+            :show-file-list="false"
+            :on-preview="preview"
+            :on-remove="removeAvator"
+            :on-success="uploadSuccess"
+            :before-upload="beforeUpload">
+                <img v-if="currentHero.avator" :src="currentHero.avator" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+            <el-dialog :visible.sync="previewDialog">
+                <img width="100%" :src="currentHero.url" alt="">
+            </el-dialog>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="save">保存</el-button>
           <el-button @click="dialogVisible = false">取消</el-button>
@@ -107,12 +123,13 @@
   </div>
 </template>
 <script>
-import { create, list, remove, getById, edit, deleteMany } from "@/api/heros.js";
+import { create, list, remove, getById, edit, deleteMany, uploadURL } from "@/api/heros.js";
 
 export default {
   data() {
     return {
       dialogVisible: false,
+      previewDialog: false,
       pagination: {
         total: 0,
         currentPage: 1,
@@ -120,7 +137,8 @@ export default {
         name: ''
       },
       currentHero: {
-          name: ''
+          name: '',
+          avator: ''
       },
       rules: {
         name: [
@@ -129,7 +147,8 @@ export default {
       },
       heroList: [],
       selectedIds: [],
-      selectList: []
+      selectList: [],
+      uploadURL: uploadURL
     };
   },
   methods: {
@@ -148,6 +167,8 @@ export default {
           if (code === 1) {
             this.dialogVisible = false;
             this.list();
+            this.currentHero.name = ''
+            this.currentHero.url = ''
             // this.pagination.currentPage = Math.floor(this.pagination.total / this.pagination.size)
             this.$message({
               type: "success",
@@ -255,6 +276,24 @@ export default {
         this.selectedIds = list.map( item =>{
             return item._id
         })
+    },
+    uploadSuccess(res) {
+        this.currentHero.avator = res.url
+    },
+    beforeUpload() {
+
+    },
+    removeAvator() {
+        this.currentHero.url = ''
+    },
+    preview() {
+        this.previewDialog = true
+    },
+    dialogClose() {
+        this.currentHero.name = ''
+        this.currentHero.avator = ''
+        this.currentHero._id = ''
+
     }
   },
   created() {
@@ -286,5 +325,30 @@ export default {
 >>> .el-pagination.is-background .el-pager li:not(.disabled):hover {
   color: #313743;
 }
+.avatar-uploader {
+    border: 1px dashed #313743;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    width: 100px;
+    height: 100px;
+  }
+  .avatar-uploader:hover {
+    border-color: #d9d9d9;
+  }
+  .avatar-uploader-icon {
+    font-size: 14px;
+    color: #313743;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+  }
+  .avatar {
+    width: 100px;
+    height: 100px;
+    display: block;
+  }
 
 </style>

@@ -1,4 +1,6 @@
 const mongoose  = require('mongoose')
+const multer = require('multer')
+const upload = multer({dest: __dirname + '/../../uploads/heros'})
 
 module.exports = app => {
     const express = require('express'),
@@ -117,6 +119,11 @@ module.exports = app => {
                 text: '删除成功'
             })
         }
+    })
+    router.post(path + '/upload',upload.single('file'), (req,res) => {
+        let file = req.file
+        file.url = `http://localhost:3001/uploads/heros/${file.filename}`
+        res.send(file)
     })
     app.use(baseUrl,router)
 }

@@ -91,7 +91,7 @@
       >
       </el-pagination>
     </el-row>
-    <el-dialog title="分类详情" :visible.sync="dialogVisible" width="200">
+    <el-dialog title="分类详情" :visible.sync="dialogVisible" width="200" @close="closeDialog">
       <el-form
         ref="form"
         :model="currentCategory"
@@ -281,6 +281,11 @@ export default {
           message: text,
         });
       }
+    },
+    closeDialog() {
+      this.currentCategory.name = ''
+      this.currentCategory.parent = ''
+      this.currentCategory._id = ''
     }
   },
   created() {

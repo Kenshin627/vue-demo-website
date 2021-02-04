@@ -54,7 +54,7 @@
         </el-table-column>
 
         <el-table-column prop="name" label="物品名称"></el-table-column>
-        <el-table-column prop="image" label="图片" width="120">
+        <el-table-column prop="image" label="图片" width="120" align="center">
             <template slot-scope="scope">
                 <img :src="scope.row.image" alt="" class="rowImage">
             </template>
@@ -92,7 +92,7 @@
       >
       </el-pagination>
     </el-row>
-    <el-dialog title="物品详情" :visible.sync="dialogVisible" width="200">
+    <el-dialog title="物品详情" :visible.sync="dialogVisible" width="200" @close="closeDialog">
       <el-form
         ref="form"
         :model="currentItem"
@@ -166,6 +166,8 @@ export default {
             this.dialogVisible = false;
             this.list();
             this.listRoot();
+            this.currentItem.name = ''
+            this.currentItem.url = ''
             // this.pagination.currentPage = Math.floor(this.pagination.total / this.pagination.size)
             this.$message({
               type: "success",
@@ -294,6 +296,11 @@ export default {
     },
     beforeUpload() {
 
+    },
+    closeDialog() {
+      this.currentItem.name = ''
+      this.currentItem.image = ''
+      this.currentItem._id = ''
     }
   },
   created() {
@@ -355,6 +362,7 @@ export default {
 .rowImage{
     width: 45px;
     height: 45px;
+    border: 1px solid #ccc;
 }
 
 </style>
