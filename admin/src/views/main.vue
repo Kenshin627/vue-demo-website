@@ -19,7 +19,7 @@
                         <span slot="title">内容管理</span>
                      </template>
                      <el-menu-item index="/categories">分类列表</el-menu-item>
-                     <el-menu-item index="1-2">文章列表</el-menu-item>
+                     <el-menu-item index="/items">物品列表</el-menu-item>
                 </el-submenu>
                 </el-menu>
             </el-aside>
