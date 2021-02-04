@@ -18,8 +18,9 @@
                         <i class="el-icon-menu"></i>
                         <span slot="title">内容管理</span>
                      </template>
-                     <el-menu-item index="/categories">分类列表</el-menu-item>
-                     <el-menu-item index="/items">物品列表</el-menu-item>
+                     <el-menu-item index="/categories">分类管理</el-menu-item>
+                     <el-menu-item index="/items">物品管理</el-menu-item>
+                     <el-menu-item index="/heros">英雄管理</el-menu-item>
                 </el-submenu>
                 </el-menu>
             </el-aside>

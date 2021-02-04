@@ -10,6 +10,7 @@ app.use('/uploads/items',express.static(__dirname + '/uploads/items'))
 require('./plugins/mongodb')(app)
 require('./routes/admin/categories')(app)
 require('./routes/admin/items')(app)
+require('./routes/admin/heros')(app)
 
 app.listen("3001",_ => {
     console.log('server has been start as port 3001')
