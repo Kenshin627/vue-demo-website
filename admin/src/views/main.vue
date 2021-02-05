@@ -21,6 +21,7 @@
                      <el-menu-item index="/categories">分类管理</el-menu-item>
                      <el-menu-item index="/items">物品管理</el-menu-item>
                      <el-menu-item index="/heros">英雄管理</el-menu-item>
+                     <el-menu-item index="/articles">文章管理</el-menu-item>
                 </el-submenu>
                 </el-menu>
             </el-aside>
