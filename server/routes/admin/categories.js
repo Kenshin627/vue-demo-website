@@ -73,7 +73,6 @@ module.exports = app => {
         let page = parseInt(req.query.num),
             count = parseInt(req.query.size),
             getRoot = parseInt(req.query.getRoot),
-            // name = req.query.name? req.query.name : '',
             p1 = Category.countDocuments(),
             p2 = null,
             reg = new RegExp(req.query.name,'i')
@@ -117,6 +116,18 @@ module.exports = app => {
                 text: '删除成功'
             })
         }
+    })
+
+    router.get(path + '/children/:parentName', async (req,res) => {
+        const parentName = req.params.parentName
+        const reg = new RegExp(parentName,'i')
+        const parent = await Category.findOne({ name : { $regex: reg } })
+        const children = await Category.find({ parent: parent._id })
+        res.send({
+            code: 1,
+            text: '获取成功',
+            listData: children
+        })
     })
     app.use(baseUrl,router)
 }

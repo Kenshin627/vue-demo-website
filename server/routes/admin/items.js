@@ -75,14 +75,19 @@ module.exports = app => {
         let page = parseInt(req.query.num),
             count = parseInt(req.query.size),
             getRoot = parseInt(req.query.getRoot),
+            getAll = parseInt(req.query.getAll)
             // name = req.query.name? req.query.name : '',
             p1 = Item.countDocuments(),
             p2 = null,
             reg = new RegExp(req.query.name,'i')
-            if(getRoot === 1){
-                p2 = Item.find({ 'parent': null })
+            if(getAll === 1) {
+                p2 = Item.find({})
             }else{
-                p2 = Item.find({ name: { $regex: reg } }).skip((page - 1) * count).limit(count)
+                if(getRoot === 1){
+                    p2 = Item.find({ 'parent': null })
+                }else{
+                    p2 = Item.find({ name: { $regex: reg } }).skip((page - 1) * count).limit(count)
+                }
             }
         
         Promise.all([p1,p2])

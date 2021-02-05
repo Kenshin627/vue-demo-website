@@ -5,13 +5,13 @@ const upload = multer({dest: __dirname + '/../../uploads/heros'})
 module.exports = app => {
     const express = require('express'),
         router = express.Router(),
-        Category = require('../../models/heros'),
+        Hero = require('../../models/heros'),
         baseUrl = '/api/admin',
         path = '/heros'
 
     //create
     router.post(path,async (req,res) => {
-        const { err } = await Category.create(req.body)
+        const { err } = await Hero.create(req.body)
         if(err) {
             res.status(500).send({
                 code: 0,
@@ -26,7 +26,7 @@ module.exports = app => {
     })
     //delete
     router.delete(path+'/:id',async (req,res) => {
-        const { err } = await Category.findByIdAndRemove(req.params.id)
+        const { err } = await Hero.findByIdAndRemove(req.params.id)
         if(err) {
             res.status(500).send({
                 code: 0,
@@ -41,7 +41,7 @@ module.exports = app => {
     })
     //edit
     router.put(path, async (req,res) => {
-        const data  = await Category.findByIdAndUpdate(req.body._id, req.body)
+        const data  = await Hero.findByIdAndUpdate(req.body._id, req.body)
         if(!data) {
             res.status(500).send({
                 code: 0,
@@ -56,7 +56,7 @@ module.exports = app => {
     })
     //getById
     router.get(path+'/:id',async (req, res) => {
-        const data = await Category.findById(req.params.id)
+        const data = await Hero.findById(req.params.id)
         if(!data) {
             res.status(500).send({
                 code: 0,
@@ -75,15 +75,20 @@ module.exports = app => {
         let page = parseInt(req.query.num),
             count = parseInt(req.query.size),
             getRoot = parseInt(req.query.getRoot),
+            getAll = parseInt(req.query.getAll)
             // name = req.query.name? req.query.name : '',
-            p1 = Category.countDocuments(),
+            p1 = Hero.countDocuments(),
             p2 = null,
             reg = new RegExp(req.query.name,'i')
+           if(getAll === 1) {
+                p2 = Hero.find({})
+           }else{
             if(getRoot === 1){
-                p2 = Category.find({ 'parent': null })
+                p2 = Hero.find({ 'parent': null })
             }else{
-                p2 = Category.find({ name: { $regex: reg } }).skip((page - 1) * count).limit(count)
+                p2 = Hero.find({ name: { $regex: reg } }).populate('categories').skip((page - 1) * count).limit(count)
             }
+           }
         
         Promise.all([p1,p2])
         .then( ([count,list]) => {
@@ -106,7 +111,7 @@ module.exports = app => {
         const ids = req.body.ids.map( id => {
             return mongoose.Types.ObjectId(id)
         })
-        const { err } = await Category.deleteMany({ _id: { $in: ids } })
+        const { err } = await Hero.deleteMany({ _id: { $in: ids } })
         console.log(err)
         if(err) {
             res.status(500).send({

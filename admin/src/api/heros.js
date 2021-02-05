@@ -55,4 +55,24 @@ export function listAllRoot() {
     })
 }
 
+export function fetchHeroCategories(parentName) {
+    return Axios({
+        url: `/categories/children/${parentName}`,
+        method: 'get'
+    })
+}
+export function fetchHeroItems() {
+    return Axios({
+        url: `/items?getAll=1`,
+        method: 'get'
+    })
+}
+
+export function fetchHeros() {
+    return Axios({
+        url: `/heros?getAll=1`,
+        method: 'get'
+    })
+}
+
 export const uploadURL = `http://localhost:3001/api/admin/heros/upload`
