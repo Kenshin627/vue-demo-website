@@ -89,7 +89,7 @@
     </el-row>
     <el-dialog title="文章详情" :visible.sync="dialogVisible" width="200" @close="closeDialog">
       <el-form
-        ref="form"
+        ref="articleForm"
         :model="currentArticle"
         label-width="80px"
         size="mini"
@@ -98,12 +98,12 @@
             <el-form-item label="标题" prop="name">
                 <el-input v-model="currentArticle.name"></el-input>
             </el-form-item>
-            <el-form-item label="文章分类">
+            <el-form-item label="文章分类" prop="categories">
                 <el-select v-model="currentArticle.categories" multiple>
                     <el-option :label="cat.name" :value="cat._id" v-for="cat in categories" :key="cat._id"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="内容">
+            <el-form-item label="内容" prop="content">
                 <wangeditor 
                 :minHeight="200" 
                 :uploadUrl="uploadURL" 
@@ -111,7 +111,6 @@
                 :error="uploadError"
                 v-model="currentArticle.content"></wangeditor>
             </el-form-item>
-
             <el-form-item>
                 <el-button type="primary" @click="save">保存</el-button>
                 <el-button @click="dialogVisible = false">取消</el-button>
@@ -156,7 +155,7 @@ export default {
   },
   methods: {
       save() {
-      this.$refs.form.validate(async (valid) => {
+      this.$refs.articleForm.validate(async (valid) => {
         if(valid) {
           let ret = null
           if(this.currentArticle._id) {
@@ -165,14 +164,10 @@ export default {
               ret = await create(this.currentArticle)
           }
           let { data: { code, text } }= ret
-          this.currentArticle = {}
           console.log(code,text)
           if (code === 1) {
             this.dialogVisible = false;
             this.list();
-            this.currentArticle.name = ''
-            this.currentArticle.url = ''
-            // this.pagination.currentPage = Math.floor(this.pagination.total / this.pagination.size)
             this.$message({
               type: "success",
               message: text,
@@ -281,11 +276,11 @@ export default {
         })
     },
     closeDialog() {
-    //   this.currentArticle.name = ''
-    //   this.currentArticle._id = null
-    //   this.currentArticle.categories = []
-    //   this.currentArticle.content = ''
-      this.$refs.form.resetFields()
+      this.currentArticle.name = ''
+      this.currentArticle._id = null
+      this.currentArticle.categories = []
+      this.currentArticle.content = ''
+      // this.$refs.articleForm.resetFields()
     },
     async fetchCategories() {
         let { data: { code, text, listData } }  = await fetchCategories('news')
