@@ -1,17 +1,17 @@
 const mongoose  = require('mongoose')
 const multer = require('multer')
-const upload = multer({dest: __dirname + '/../../uploads/items'}) 
+const upload = multer({dest: __dirname + '/../../uploads/ads'}) 
 
 module.exports = app => {
   const express = require('express'),
         router = express.Router(),
-        Item = require('../../models/items'),
+        Ads = require('../../models/ads'),
         baseUrl = '/api/admin',
-        path = '/items'
+        path = '/ads'
 
     //create
     router.post(path,async (req,res) => {
-        const { err } = await Item.create(req.body)
+        const { err } = await Ads.create(req.body)
         if(err) {
             res.status(500).send({
                 code: 0,
@@ -26,7 +26,7 @@ module.exports = app => {
     })
     //delete
     router.delete(path+'/:id',async (req,res) => {
-        const { err } = await Item.findByIdAndRemove(req.params.id)
+        const { err } = await Ads.findByIdAndRemove(req.params.id)
         if(err) {
             res.status(500).send({
                 code: 0,
@@ -41,7 +41,7 @@ module.exports = app => {
     })
     //edit
     router.put(path, async (req,res) => {
-        const data  = await Item.findByIdAndUpdate(req.body._id, req.body)
+        const data  = await Ads.findByIdAndUpdate(req.body._id, req.body)
         if(!data) {
             res.status(500).send({
                 code: 0,
@@ -56,7 +56,7 @@ module.exports = app => {
     })
     //getById
     router.get(path+'/:id',async (req, res) => {
-        const data = await Item.findById(req.params.id)
+        const data = await Ads.findById(req.params.id)
         if(!data) {
             res.status(500).send({
                 code: 0,
@@ -74,22 +74,9 @@ module.exports = app => {
     router.get(path, (req,res) => {
         let page = parseInt(req.query.num),
             count = parseInt(req.query.size),
-            getRoot = parseInt(req.query.getRoot),
-            getAll = parseInt(req.query.getAll)
-            // name = req.query.name? req.query.name : '',
-            p1 = Item.countDocuments(),
-            p2 = null,
+            p1 = Ads.countDocuments(),
             reg = new RegExp(req.query.name,'i')
-            if(getAll === 1) {
-                p2 = Item.find({})
-            }else{
-                if(getRoot === 1){
-                    p2 = Item.find({ 'parent': null })
-                }else{
-                    p2 = Item.find({ name: { $regex: reg } }).skip((page - 1) * count).limit(count)
-                }
-            }
-        
+            p2 = Ads.find({ name: { $regex: reg } }).skip((page - 1) * count).limit(count)
         Promise.all([p1,p2])
         .then( ([count,list]) => {
             res.send({
@@ -111,7 +98,7 @@ module.exports = app => {
         const ids = req.body.ids.map( id => {
             return mongoose.Types.ObjectId(id)
         })
-        const { err } = await Item.deleteMany({ _id: { $in: ids } })
+        const { err } = await Ads.deleteMany({ _id: { $in: ids } })
         console.log(err)
         if(err) {
             res.status(500).send({
@@ -127,7 +114,7 @@ module.exports = app => {
     })
     router.post(path + '/upload/', upload.single('file'), async (req,res) => {
         let file = req.file
-        file.url = `http://localhost:3001/uploads/items/${ file.filename }`
+        file.url = `http://localhost:3001/uploads/ads/${ file.filename }`
         res.send(file)
     })
     

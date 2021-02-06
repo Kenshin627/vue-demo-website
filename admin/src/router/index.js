@@ -5,6 +5,7 @@ import Categories from '@/views/Categories.vue'
 import Items from '@/views/Items.vue'
 import Heros from '@/views/Heros' 
 import Articles from '@/views/Articles'
+import Ads from '@/views/Ads'
 
 Vue.use(VueRouter)
 
@@ -13,7 +14,8 @@ const routes = [
     { path: '/categories', component: Categories },
     { path: '/items', component: Items },
     { path: '/heros', component: Heros },
-    { path: '/articles', component: Articles }
+    { path: '/articles', component: Articles },
+    { path: '/ads', component: Ads } 
 ]
 
 const router = new VueRouter({

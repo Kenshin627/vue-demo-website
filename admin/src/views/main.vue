@@ -23,6 +23,13 @@
                      <el-menu-item index="/heros">英雄管理</el-menu-item>
                      <el-menu-item index="/articles">文章管理</el-menu-item>
                 </el-submenu>
+                <el-submenu index="2">
+                    <template slot="title">
+                        <i class="el-icon-magic-stick"></i>
+                        <span slot="title">广告位</span>
+                    </template>
+                    <el-menu-item index="/ads">广告位</el-menu-item>
+                </el-submenu>
                 </el-menu>
             </el-aside>
             <el-main>
