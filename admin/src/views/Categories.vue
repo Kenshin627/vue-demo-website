@@ -100,7 +100,7 @@
         :rules="rules"
         status-icon
       >
-        <el-form-item label="父级分类">
+        <el-form-item label="父级分类" prop="parent">
             <el-select size="mini" v-model="currentCategory.parent" placeholder="根分类">
                 <el-option :label="item.name" :value="item._id" v-for="item in selectList" :key="item._id"></el-option>
             </el-select>
@@ -131,7 +131,8 @@ export default {
       },
       currentCategory: {
           name: '',
-          parent: null
+          parent: null,
+          _id: null
       },
       rules: {
         name: [
@@ -154,8 +155,6 @@ export default {
               ret = await create(this.currentCategory)
           }
           let { data: { code, text } }= ret
-          this.currentCategory = {}
-          console.log(code,text)
           if (code === 1) {
             this.dialogVisible = false;
             this.list();
@@ -225,7 +224,6 @@ export default {
     },
     async openEdit(id) {
         let { data: { code, data } } = await getById(id)
-        console.log(code,data)
         if(code === 1) {
             this.currentCategory = data
             this.dialogVisible = true
@@ -284,7 +282,7 @@ export default {
     },
     closeDialog() {
       this.currentCategory.name = ''
-      this.currentCategory.parent = ''
+      this.currentCategory.parent = null
       this.currentCategory._id = null
     }
   },

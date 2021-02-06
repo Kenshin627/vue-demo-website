@@ -103,7 +103,7 @@
             <el-form-item label="物品名称" prop="name">
                 <el-input v-model="currentItem.name"></el-input>
             </el-form-item>
-            <el-form-item label="图片">
+            <el-form-item label="图片" prop="image">
                 <el-upload
                     class="avatar-uploader"
                     :action="uploadURL"
@@ -136,7 +136,9 @@ export default {
         name: ''
       },
       currentItem: {
-          name: ''
+          name: '',
+          image: '',
+          _id: null
       },
       rules: {
         name: [
@@ -160,15 +162,10 @@ export default {
               ret = await create(this.currentItem)
           }
           let { data: { code, text } }= ret
-          this.currentItem = {}
-          console.log(code,text)
           if (code === 1) {
             this.dialogVisible = false;
             this.list();
             this.listRoot();
-            this.currentItem.name = ''
-            this.currentItem.url = ''
-            // this.pagination.currentPage = Math.floor(this.pagination.total / this.pagination.size)
             this.$message({
               type: "success",
               message: text,
@@ -233,7 +230,6 @@ export default {
     },
     async openEdit(id) {
         let { data: { code, data } } = await getById(id)
-        console.log(code,data)
         if(code === 1) {
             this.currentItem = data
             this.dialogVisible = true
@@ -291,7 +287,6 @@ export default {
       }
     },
     uploadSuccess(res) {
-        console.log(res)
         this.$set(this.currentItem,'image',res.url)
     },
     beforeUpload() {
@@ -300,7 +295,7 @@ export default {
     closeDialog() {
       this.currentItem.name = ''
       this.currentItem.image = ''
-      this.currentItem._id = ''
+      this.currentItem._id = null
     }
   },
   created() {
