@@ -4,6 +4,7 @@
         <el-container>
             <el-aside width="11%">
                 <el-menu
+                unique-opened
                 router
                 :default-active="this.$route.path"
                 class=""
