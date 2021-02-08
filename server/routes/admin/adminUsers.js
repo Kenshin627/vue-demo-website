@@ -9,7 +9,8 @@ module.exports = app => {
         bcrypt = require('bcrypt'),
         jwt = require('jsonwebtoken'),
         upload = multer({dest: __dirname + '/../../uploads/adminUsers'}),
-        tokenPrivateKey = app.get('tokenPrivateKey') 
+        tokenPrivateKey = app.get('tokenPrivateKey'),
+        authMiddleware = require('../../middleware/authrizationMiddleWare')
 
     //create
     router.post(path,async (req,res) => {
@@ -73,7 +74,7 @@ module.exports = app => {
         }
     })
     //list
-    router.get(path, (req,res) => {
+    router.get(path, authMiddleware(), (req,res) => {
         let page = parseInt(req.query.num),
             count = parseInt(req.query.size),
             reg = new RegExp(req.query.name,'i'),
@@ -135,7 +136,8 @@ module.exports = app => {
             try {
                 const ret = await bcrypt.compare(password,findUser.password)
                 if(ret){
-                    const token = jwt.sign({ id: findUser._Id },tokenPrivateKey)
+                    const token = jwt.sign({ id: findUser._id },tokenPrivateKey)
+                    console.log(token)
                     res.send({
                         code: 1,
                         text: '登录成功',
@@ -160,4 +162,9 @@ module.exports = app => {
     })
 
     app.use(baseUrl,router)
+    app.use((err,req,res,next) => {
+        res.status(err.statusCode).send({
+            message: err.message
+        })
+    })
 }

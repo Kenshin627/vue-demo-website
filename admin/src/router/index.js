@@ -14,7 +14,7 @@ Vue.use(VueRouter)
 
 const routes = [
     {
-        path: '/login', component: Login
+        path: '/login', component: Login, meta: { isPublic: true }
     },
     { 
         path: '/', component: Main,
@@ -32,6 +32,17 @@ const routes = [
 
 const router = new VueRouter({
     routes
+})
+
+router.beforeEach((to, from, next) => {
+    if(!to.meta.isPublic && !localStorage.getItem('token')){
+        Vue.prototype.$message({
+            type: 'warning',
+            message: '请先登录！'
+        })
+        next('/login')
+    }
+    next()
 })
 
 export default router

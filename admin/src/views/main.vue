@@ -104,7 +104,8 @@ export default {
         border-bottom: 1px solid rgb(73,73,73);
     }
     .right-menu-item {
-      display: inline-block;
+      float: right;
+      /* display: inline-block; */
       padding: 0 8px;
       height: 100%;
       font-size: 18px;
