@@ -8,6 +8,7 @@ import Heros from '@/views/Heros'
 import Articles from '@/views/Articles'
 import Ads from '@/views/Ads'
 import Login from '@/views/Login'
+import AdminUsers from '@/views/AdminUsers'
 
 Vue.use(VueRouter)
 
@@ -23,7 +24,8 @@ const routes = [
             { path: '/items', component: Items },
             { path: '/heros', component: Heros },
             { path: '/articles', component: Articles },
-            { path: '/ads', component: Ads } 
+            { path: '/ads', component: Ads },
+            { path: '/adminUsers',component: AdminUsers }
         ]
     },
 ]

@@ -1,6 +1,5 @@
 <template>
     <div class="login-container">
-        <!-- <div class="login-header">官网后台管理系统</div> -->
         <el-card class="login-form">
             <div slot="header" class="login-header">官网后台管理系统</div>
             <div>
@@ -20,6 +19,7 @@
     </div>    
 </template>
 <script>
+import { login } from '@/api/login'
 export default {
     data() {
         return {
@@ -38,8 +38,17 @@ export default {
         }
     },
     methods: {
-        login() {
-
+        async login() {
+            try {
+                const { data: { code, data } } = await login(this.loginModel)
+                if(code === 1){
+                    this.$store.commit('login',data)
+                    localStorage.setItem('token',data.token)
+                    this.$router.push('/')
+                }
+            } catch(err) {
+                console.log(err)
+            }
         }
     }
 }
