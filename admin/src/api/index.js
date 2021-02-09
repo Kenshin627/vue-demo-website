@@ -24,7 +24,7 @@ Axios.interceptors.response.use(
     },  
     err => {
         Vue.prototype.$message({
-            type: 'error',
+            type: 'warning',
             message: err.response.data.message
         })
         if (err.response.status === 401) {

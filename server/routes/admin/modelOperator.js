@@ -13,7 +13,7 @@ module.exports = app => {
         uploadUrlPrefix = 'http://localhost:3001/uploads/'
 
     //create
-    router.post('',authMiddleware() , async (req,res) => {
+    router.post('', async (req,res) => {
         const model = require(`../../models/${ req.Model }`)
         await model.create(req.body)
         res.send({
@@ -22,7 +22,7 @@ module.exports = app => {
         })
     })
     //delete
-    router.delete('/:id', authMiddleware(), async (req,res) => {
+    router.delete('/:id', async (req,res) => {
         const model = require(`../../models/${ req.Model }`)
         await model.findByIdAndRemove(req.params.id)
         res.send({
@@ -31,7 +31,7 @@ module.exports = app => {
         })
     })
     //edit
-    router.put('',authMiddleware() ,async (req,res) => {
+    router.put('',async (req,res) => {
         const model = require(`../../models/${ req.Model }`)
         await model.findByIdAndUpdate(req.body._id, req.body)
         res.send({
@@ -40,7 +40,7 @@ module.exports = app => {
         })
     })
     //getById
-    router.get('/:id',authMiddleware(),async (req, res) => {
+    router.get('/:id',async (req, res) => {
         const model = require(`../../models/${ req.Model }`)
         const data = await model.findById(req.params.id)
         res.send({
@@ -50,7 +50,7 @@ module.exports = app => {
         })
     })
     //list
-    router.get('', authMiddleware(), (req,res) => {
+    router.get('', (req,res) => {
             let page = parseInt(req.query.num),
             count = parseInt(req.query.size),
             getRoot = parseInt(req.query.getRoot),
@@ -103,7 +103,7 @@ module.exports = app => {
         })
     })
     //deleteMany
-    router.post('/deleteMany',authMiddleware(), async (req,res) => {
+    router.post('/deleteMany', async (req,res) => {
         const ids = req.body.ids.map( id => {
             return mongoose.Types.ObjectId(id)
         })
@@ -115,7 +115,7 @@ module.exports = app => {
         })
     })
     //upload
-    router.post('/upload/', authMiddleware(), imageUpload.single('file'), async (req,res) => {
+    router.post('/upload/', imageUpload.single('file'), async (req,res) => {
         let file = req.file
         file.url = `${ uploadUrlPrefix }${ file.filename }`
         res.send(file)
@@ -157,7 +157,7 @@ module.exports = app => {
         }
     })
 
-    app.use(baseUrl,classifyModelMiddleware(),router)
+    app.use(baseUrl, authMiddleware(), classifyModelMiddleware(),router)
     app.use((err,req,res,next) => {
         res.status(err.statusCode).send({
             message: err.message

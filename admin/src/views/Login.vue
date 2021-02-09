@@ -1,7 +1,7 @@
 <template>
     <div class="login-container">
         <el-card class="login-form">
-            <div slot="header" class="login-header">官网后台管理系统</div>
+            <div slot="header" class="login-header">后台管理</div>
             <div>
                 <el-form ref="loginForm" :model="loginModel" size="small" :rules="rules" status-icon="">
                     <el-form-item label="" prop="username">
