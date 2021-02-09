@@ -115,6 +115,7 @@
                             <el-upload
                                 class="avatar-uploader"
                                 :action="uploadURL"
+                                :headers="{ Authorization: token() }"
                                 :show-file-list="false"
                                 :on-success="(res) => $set(item,'photo',res.url)"
                                 :before-upload="beforeUpload">

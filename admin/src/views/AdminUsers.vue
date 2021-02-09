@@ -104,6 +104,7 @@
                 <el-upload
                     class="avatar-uploader"
                     :action="uploadURL"
+                    :headers="{ 'Authorization': token() }"
                     :show-file-list="false"
                     :on-success="res => $set(currentUser,'avator',res.url)">
                     <img v-if="currentUser.avator" :src="currentUser.avator" class="avatar">
@@ -208,7 +209,6 @@ export default {
         } = await remove(id);
         if (code === 1) {
           this.list();
-          this.listRoot();
           this.$message({
             type: "success",
             message: `删除成功`,

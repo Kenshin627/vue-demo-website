@@ -5,7 +5,13 @@ import router from '@/router/index'
 import store from '@/store/index'
 
 Vue.config.productionTip = false
-
+Vue.mixin({
+  methods: {
+    token() {
+      return localStorage.getItem('token')
+    }
+  }
+})
 new Vue({
   router,
   store,
