@@ -38,6 +38,9 @@
       uploadUrl: {
           type: String
       },
+      uploadImgHeaders: {
+        type: Object
+      },
       fail: {
           type: Function
       },
@@ -66,11 +69,10 @@
     },
     methods: {
       seteditor() {
-        // http://192.168.2.125:8080/admin/storage/create
         this.editor = new E(this.$refs.toolbar, this.$refs.editor)
         this.editor.config.uploadImgShowBase64 = false // base 64 存储图片
         this.editor.config.uploadImgServer = this.uploadUrl// 配置服务器端地址
-        this.editor.config.uploadImgHeaders = { }// 自定义 header
+        this.editor.config.uploadImgHeaders = this.uploadImgHeaders// 自定义 header
         this.editor.config.uploadFileName = 'file' // 后端接受上传文件的参数名
         this.editor.config.uploadImgMaxSize = 2 * 1024 * 1024 // 将图片大小限制为 2M
         this.editor.config.uploadImgMaxLength = 6 // 限制一次最多上传 3 张图片
@@ -120,6 +122,9 @@
         this.editor.config.onchange = (html) => {
           this.info_ = html // 绑定当前逐渐地值
           this.$emit('change', this.info_) // 将内容同步到父组件中
+        }
+        this.editor.config.onblur = () => {
+          this.$emit('blur')
         }
         // 创建富文本编辑器
         this.editor.create()

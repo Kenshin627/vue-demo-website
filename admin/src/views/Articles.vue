@@ -87,19 +87,19 @@
       >
       </el-pagination>
     </el-row>
-    <el-dialog title="文章详情" :visible.sync="dialogVisible" width="200" @close="closeDialog">
+    <el-dialog :title="dialogTitle + '文章'" :visible.sync="dialogVisible" width="50%" @close="closeDialog">
       <el-form
         ref="articleForm"
-        :model="currentArticle"
+        :model="currentModel"
         label-width="80px"
         size="mini"
         :rules="rules"
         status-icon>
             <el-form-item label="标题" prop="name">
-                <el-input v-model="currentArticle.name"></el-input>
+                <el-input v-model="currentModel.name"></el-input>
             </el-form-item>
             <el-form-item label="文章分类" prop="categories">
-                <el-select v-model="currentArticle.categories" multiple>
+                <el-select v-model="currentModel.categories" multiple class="select100">
                     <el-option :label="cat.name" :value="cat._id" v-for="cat in categories" :key="cat._id"></el-option>
                 </el-select>
             </el-form-item>
@@ -107,9 +107,10 @@
                 <wangeditor 
                 :minHeight="200" 
                 :uploadUrl="uploadURL" 
+                :uploadImgHeaders="uploadHeader"
                 :fail="uploadFail"
                 :error="uploadError"
-                v-model="currentArticle.content"></wangeditor>
+                v-model="currentModel.content"></wangeditor>
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="save">保存</el-button>
@@ -133,7 +134,7 @@ export default {
         size: 10,
         name: ''
       },
-      currentArticle: {
+      currentModel: {
           name: '',
           content: '',
           _id: null,
@@ -143,6 +144,20 @@ export default {
         name: [
             { required: true, message: '请输入文章标题', trigger: 'blur' },
         ],
+        categories: [
+            { 
+              validator: (rule, value, callback) => {
+                  if(!value || value.length === 0){
+                    return callback(new Error('请至少选择一个分类'))
+                  }
+                  callback()
+              }, 
+              trigger: 'change' 
+              }
+        ],
+        content: [
+            { required: true, message:'请输入文章内容', trigger: 'blur' }
+        ]
       },
       categories: [],
       articleList: [],
@@ -158,10 +173,10 @@ export default {
       this.$refs.articleForm.validate(async (valid) => {
         if(valid) {
           let ret = null
-          if(this.currentArticle._id) {
-              ret = await edit(this.currentArticle)
+          if(this.currentModel._id) {
+              ret = await edit(this.currentModel)
           }else{
-              ret = await create(this.currentArticle)
+              ret = await create(this.currentModel)
           }
           let { data: { code, text } }= ret
           console.log(code,text)
@@ -233,7 +248,7 @@ export default {
         let { data: { code, data } } = await getById(id)
         console.log(code,data)
         if(code === 1) {
-            this.currentArticle = data
+            this.currentModel = data
             this.dialogVisible = true
         }else{
             this.$message({
@@ -276,11 +291,11 @@ export default {
         })
     },
     closeDialog() {
-      this.currentArticle.name = ''
-      this.currentArticle._id = null
-      this.currentArticle.categories = []
-      this.currentArticle.content = ''
-      // this.$refs.articleForm.resetFields()
+      this.currentModel.name = ''
+      this.currentModel._id = null
+      this.currentModel.categories = []
+      this.currentModel.content = ''
+      this.$refs.articleForm.clearValidate()
     },
     async fetchCategories() {
         let { data: { code, text, listData } }  = await fetchCategories('news')
@@ -307,59 +322,5 @@ export default {
 };
 </script>
 <style scoped>
-.queryContainer {
-  box-sizing: border-box;
-  padding: 15px 15px 15px 1px;
-  border-radius: 4px;
-  margin-top: 30px;
-  margin-bottom: 30px;
-  box-shadow: 1px 1px 3px 0 #e6e6e6;
-  height: 70px;
-  
-}
-.queryForm {
-  color: rgb(80, 80, 80);
-  padding-top: 10px;
-}
-.table {
-  margin-bottom: 30px;
-}
-.avatar-uploader {
-    border: 1px dashed #d9d9d9;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    width: 100px;
-    height: 100px;
-}
-.avatar-uploader:hover {
-    border-color: #313743;
-}
-.avatar-uploader-icon {
-    font-size: 14px;
-    color: #313743;
-    width: 100px;
-    height: 100px;
-    line-height: 100px;
-    text-align: center;
-
-}
-.avatar {
-    width: 100px;
-    height: 100px;
-    display: block;
-}
->>> .el-pagination.is-background .el-pager li:not(.disabled).active {
-  background-color: #313743;
-}
->>> .el-pagination.is-background .el-pager li:not(.disabled):hover {
-  color: #313743;
-}
-.rowImage{
-    width: 45px;
-    height: 45px;
-    border: 1px solid #ccc;
-}
 
 </style>

@@ -86,28 +86,28 @@
       >
       </el-pagination>
     </el-row>
-    <el-dialog title="用户详情" :visible.sync="dialogVisible" width="200" @close="closeDialog">
+    <el-dialog :title="dialogTitle + '管理员'" :visible.sync="dialogVisible" width="30%" @close="closeDialog">
       <el-form
         ref="form"
-        :model="currentUser"
+        :model="currentModel"
         label-width="80px"
         size="mini"
         :rules="rules"
         status-icon>
             <el-form-item label="用户名" prop="username">
-                <el-input v-model="currentUser.username"></el-input>
+                <el-input v-model="currentModel.username"></el-input>
             </el-form-item>
             <el-form-item label="密码" prop="password">
-                <el-input v-model="currentUser.password"></el-input>
+                <el-input v-model="currentModel.password"></el-input>
             </el-form-item>
             <el-form-item label="头像" prop="avator">
                 <el-upload
                     class="avatar-uploader"
                     :action="uploadURL"
-                    :headers="{ 'Authorization': token() }"
+                    :headers="uploadHeader"
                     :show-file-list="false"
-                    :on-success="res => $set(currentUser,'avator',res.url)">
-                    <img v-if="currentUser.avator" :src="currentUser.avator" class="avatar">
+                    :on-success="res => $set(currentModel,'avator',res.url)">
+                    <img v-if="currentModel.avator" :src="currentModel.avator" class="avatar">
                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
             </el-form-item>
@@ -132,7 +132,7 @@ export default {
         size: 10,
         name: ''
       },
-      currentUser: {
+      currentModel: {
           username: '',
           password: '',
           avator: '',
@@ -157,10 +157,10 @@ export default {
       this.$refs.form.validate(async (valid) => {
         if(valid) {
           let ret = null
-          if(this.currentUser._id) {
-              ret = await edit(this.currentUser)
+          if(this.currentModel._id) {
+              ret = await edit(this.currentModel)
           }else{
-              ret = await create(this.currentUser)
+              ret = await create(this.currentModel)
           }
           let { data: { code, text } }= ret
           if (code === 1) {
@@ -230,7 +230,7 @@ export default {
     async openEdit(id) {
         let { data: { code, data } } = await getById(id)
         if(code === 1) {
-            this.currentUser = data
+            this.currentModel = data
             this.dialogVisible = true
         }else{
             this.$message({
@@ -273,10 +273,11 @@ export default {
         })
     },
     closeDialog() {
-      this.currentUser.username = ''
-      this.currentUser.password = ''
-      this.currentUser.avator = ''
-      this.currentUser._id = null
+      this.currentModel.username = ''
+      this.currentModel.password = ''
+      this.currentModel.avator = ''
+      this.currentModel._id = null
+      this.$refs.form.clearValidate()
     }
   },
   created() {
@@ -285,59 +286,4 @@ export default {
 };
 </script>
 <style scoped>
-.queryContainer {
-  box-sizing: border-box;
-  padding: 15px 15px 15px 1px;
-  border-radius: 4px;
-  margin-top: 30px;
-  margin-bottom: 30px;
-  box-shadow: 1px 1px 3px 0 #e6e6e6;
-  height: 70px;
-  
-}
-.queryForm {
-  color: rgb(80, 80, 80);
-  padding-top: 10px;
-}
-.table {
-  margin-bottom: 30px;
-}
-.avatar-uploader {
-    border: 1px dashed #d9d9d9;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    width: 100px;
-    height: 100px;
-}
-.avatar-uploader:hover {
-    border-color: #313743;
-}
-.avatar-uploader-icon {
-    font-size: 14px;
-    color: #313743;
-    width: 100px;
-    height: 100px;
-    line-height: 100px;
-    text-align: center;
-
-}
-.avatar {
-    width: 100px;
-    height: 100px;
-    display: block;
-}
->>> .el-pagination.is-background .el-pager li:not(.disabled).active {
-  background-color: #313743;
-}
->>> .el-pagination.is-background .el-pager li:not(.disabled):hover {
-  color: #313743;
-}
-.rowImage{
-    width: 45px;
-    height: 45px;
-    border: 1px solid #ccc;
-}
-
 </style>

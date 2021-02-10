@@ -87,18 +87,19 @@
       >
       </el-pagination>
     </el-row>
-    <el-dialog title="广告详情" :visible.sync="dialogVisible" width="200" @closed="closeDialog">
+    <el-dialog :title="dialogTitle + '广告'" :visible.sync="dialogVisible" width="50%" @closed="closeDialog">
         <el-form
             ref="adsForm"
-            :model="currentAds"
-            label-width="80px"
+            :model="currentModel"
+            label-width="50px"
+            label-position="left"
             size="mini"
             :rules="rules"
             status-icon>
             <el-tabs v-model="activeName">
                 <el-tab-pane label="基础属性" name="base">
-                    <el-form-item label="广告名称" prop="name">
-                        <el-input v-model="currentAds.name"></el-input>
+                    <el-form-item label="广告名称" prop="name" label-width="80">
+                        <el-input v-model="currentModel.name"></el-input>
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="save">保存</el-button>
@@ -107,15 +108,15 @@
                 </el-tab-pane>
                 <el-tab-pane label="广告栏" prop='ads'>
                     <el-button-group>
-                        <el-button type="success" icon="el-icon-plus" class="addAds" size="mini" @click="addAds"></el-button>
+                        <el-button type="primary" icon="el-icon-plus" class="addAds" size="mini" @click="addAds"></el-button>
                         <el-button type="primary" icon="el-icon-edit" size="mini" @click="save"></el-button>
                     </el-button-group>
-                    <div class="adsList" v-for="(item,index) in currentAds.items" :key='index'>
+                    <div class="adsList" v-for="(item,index) in currentModel.items" :key='index'>
                         <el-form-item label="图片" :prop="'items.' + index + '.photo'">
                             <el-upload
                                 class="avatar-uploader"
                                 :action="uploadURL"
-                                :headers="{ Authorization: token() }"
+                                :headers="uploadHeader"
                                 :show-file-list="false"
                                 :on-success="(res) => $set(item,'photo',res.url)"
                                 :before-upload="beforeUpload">
@@ -127,7 +128,7 @@
                             <el-input v-model="item.link"></el-input>
                         </el-form-item>
                         <el-form-item >
-                            <el-button type="danger" icon="el-icon-delete" @click="currentAds.items.splice(index,1)"></el-button>
+                            <el-button type="danger" icon="el-icon-delete" @click="currentModel.items.splice(index,1)"> 删除</el-button>
                         </el-form-item>
                     </div>
                 </el-tab-pane>
@@ -150,7 +151,7 @@ export default {
         size: 10,
         name: ''
       },
-      currentAds: {
+      currentModel: {
           _id: null,
           name: '',
           items: []
@@ -172,10 +173,10 @@ export default {
       this.$refs.adsForm.validate(async (valid) => {
         if(valid) {
           let ret = null
-          if(this.currentAds._id) {
-              ret = await edit(this.currentAds)
+          if(this.currentModel._id) {
+              ret = await edit(this.currentModel)
           }else{
-              ret = await create(this.currentAds)
+              ret = await create(this.currentModel)
           }
           let { data: { code, text } }= ret
           if (code === 1) {
@@ -245,7 +246,7 @@ export default {
     async openEdit(id) {
         let { data: { code, data } } = await getById(id)
         if(code === 1) {
-            this.currentAds = data
+            this.currentModel = data
             this.dialogVisible = true
         }else{
             this.$message({
@@ -291,15 +292,14 @@ export default {
 
     },
     closeDialog() {
-        console.log('close')
         this.activeName = 'base'
-    //   this.$refs.adsForm.resetFields()
-        this.currentAds.name = ''
-        this.currentAds._id = null
-        this.currentAds.items = []
+        this.currentModel.name = ''
+        this.currentModel._id = null
+        this.currentModel.items = []
+        this.$refs.adsForm.clearValidate()
     },
     addAds() {
-        this.currentAds.items.push({})
+        this.currentModel.items.push({})
     }
   },
   created() {
@@ -308,72 +308,21 @@ export default {
 };
 </script>
 <style scoped>
-.queryContainer {
-  box-sizing: border-box;
-  padding: 15px 15px 15px 1px;
+.el-button-group{
+  display: block;
+}
+.adsList{
+  display: inline-block;
+  width: 19.5%;
+  margin-right: 5px;
+  padding: 20px;
+  border-left: 1px dashed #ccc;
+  border: 1px dashed #ccc;
   border-radius: 4px;
-  margin-top: 30px;
+}
+.addAds{
   margin-bottom: 30px;
-  box-shadow: 1px 1px 3px 0 #e6e6e6;
-  height: 70px;
-  
+  display: block;
 }
-.queryForm {
-  color: rgb(80, 80, 80);
-  padding-top: 10px;
-}
-.table {
-  margin-bottom: 30px;
-}
-.avatar-uploader {
-    border: 1px dashed #d9d9d9;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    width: 100px;
-    height: 100px;
-}
-.avatar-uploader:hover {
-    border-color: #313743;
-}
-.avatar-uploader-icon {
-    font-size: 14px;
-    color: #313743;
-    width: 100px;
-    height: 100px;
-    line-height: 100px;
-    text-align: center;
-
-}
-.avatar {
-    width: 100px;
-    height: 100px;
-    display: block;
-}
->>> .el-pagination.is-background .el-pager li:not(.disabled).active {
-  background-color: #313743;
-}
->>> .el-pagination.is-background .el-pager li:not(.disabled):hover {
-  color: #313743;
-}
-.rowImage{
-    width: 45px;
-    height: 45px;
-    border: 1px solid #ccc;
-}
- .adsList{
-    display: inline-block;
-    width: 27%;
-    margin-right: 5px;
-    padding: 20px;
-    border-left: 1px dashed #ccc;
-    border: 1px dashed #ccc;
-    border-radius: 4px;
-  }
-  .addAds{
-    margin-bottom: 30px;
-    display: block;
-  }
 
 </style>

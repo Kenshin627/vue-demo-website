@@ -8,7 +8,7 @@
                         <el-input prefix-icon="el-icon-user" v-model="loginModel.username"></el-input>
                     </el-form-item>
                     <el-form-item label="" prop="password">
-                        <el-input type="password" prefix-icon="el-icon-lock" v-model="loginModel.password"></el-input>
+                        <el-input show-password prefix-icon="el-icon-lock" v-model="loginModel.password"></el-input>
                     </el-form-item>
                     <el-form-item size="small">
                         <el-button class="login-btn" type="success" @click="login">登录</el-button>

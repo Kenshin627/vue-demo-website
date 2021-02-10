@@ -91,22 +91,22 @@
       >
       </el-pagination>
     </el-row>
-    <el-dialog title="分类详情" :visible.sync="dialogVisible" width="200" @close="closeDialog">
+    <el-dialog :title="dialogTitle + '分类'" :visible.sync="dialogVisible" width="30%" @close="closeDialog">
       <el-form
         ref="form"
-        :model="currentCategory"
+        :model="currentModel"
         label-width="80px"
         size="mini"
         :rules="rules"
         status-icon
       >
         <el-form-item label="父级分类" prop="parent">
-            <el-select size="mini" v-model="currentCategory.parent" placeholder="根分类">
+            <el-select size="mini" v-model="currentModel.parent" placeholder="根分类" clearable class="select100">
                 <el-option :label="item.name" :value="item._id" v-for="item in selectList" :key="item._id"></el-option>
             </el-select>
         </el-form-item>
         <el-form-item label="分类名称" prop="name">
-          <el-input v-model="currentCategory.name"></el-input>
+          <el-input v-model="currentModel.name"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="save">保存</el-button>
@@ -129,7 +129,7 @@ export default {
         size: 10,
         name: ''
       },
-      currentCategory: {
+      currentModel: {
           name: '',
           parent: null,
           _id: null
@@ -149,10 +149,10 @@ export default {
       this.$refs.form.validate(async (valid) => {
         if(valid) {
           let ret = null
-          if(this.currentCategory._id) {
-              ret = await edit(this.currentCategory)
+          if(this.currentModel._id) {
+              ret = await edit(this.currentModel)
           }else{
-              ret = await create(this.currentCategory)
+              ret = await create(this.currentModel)
           }
           let { data: { code, text } }= ret
           if (code === 1) {
@@ -225,7 +225,7 @@ export default {
     async openEdit(id) {
         let { data: { code, data } } = await getById(id)
         if(code === 1) {
-            this.currentCategory = data
+            this.currentModel = data
             this.dialogVisible = true
         }else{
             this.$message({
@@ -281,9 +281,10 @@ export default {
       }
     },
     closeDialog() {
-      this.currentCategory.name = ''
-      this.currentCategory.parent = null
-      this.currentCategory._id = null
+      this.currentModel.name = ''
+      this.currentModel.parent = null
+      this.currentModel._id = null
+      this.$refs.form.clearValidate()
     }
   },
   created() {
@@ -293,28 +294,5 @@ export default {
 };
 </script>
 <style scoped>
-.queryContainer {
-  box-sizing: border-box;
-  padding: 15px 15px 15px 1px;
-  border-radius: 4px;
-  margin-top: 30px;
-  margin-bottom: 30px;
-  box-shadow: 1px 1px 3px 0 #e6e6e6;
-  height: 70px;
-  
-}
-.queryForm {
-  color: rgb(80, 80, 80);
-  padding-top: 10px;
-}
-.table {
-  margin-bottom: 30px;
-}
->>> .el-pagination.is-background .el-pager li:not(.disabled).active {
-  background-color: #313743;
-}
->>> .el-pagination.is-background .el-pager li:not(.disabled):hover {
-  color: #313743;
-}
 
 </style>

@@ -66,13 +66,15 @@ module.exports = app => {
                 if(getRoot === 1){
                     p2 = model.find({ 'parent': null })
                 }else{
-                    const resource = req.baseUrl.split('/')[2]
+                    const resource = req.baseUrl.split('/')[3]
+                    console.log(resource)
                     switch (resource) {
                         case 'heros':
-                            p2 = Hero.find({ name: { $regex: reg } }).populate('categories').skip((page - 1) * count).limit(count)
+                            p2 = model.find({ name: { $regex: reg } }).populate('categories').skip((page - 1) * count).limit(count)
                             break;
                         case 'categories':
-                            p2 = p2 = Category.find({ name: { $regex: reg } }).populate('parent').sort({ parent: 1}).skip((page - 1) * count).limit(count)
+                            p2 = model.find().populate('parent').sort({ parent: 1}).skip((page - 1) * count).limit(count)
+                            break;
                         default:
                             p2 = model.find(querySelector).skip((page - 1) * count).limit(count)
                             break;
@@ -118,7 +120,22 @@ module.exports = app => {
     router.post('/upload/', imageUpload.single('file'), async (req,res) => {
         let file = req.file
         file.url = `${ uploadUrlPrefix }${ file.filename }`
-        res.send(file)
+        const path = req.baseUrl.split('/').pop()
+        if(path === 'articles'){
+            const data = {
+                'errno': 0,
+                'data': [
+                  {
+                      url: file.url
+                  }  
+                ]
+            }
+            res.send(data)
+        }else{
+            
+            res.send(file)
+        }
+        
     })
     //login
     app.post('/api/admin/login',async (req, res) => {

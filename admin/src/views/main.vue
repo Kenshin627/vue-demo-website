@@ -120,10 +120,12 @@ export default {
         position: relative;
     }
      .user-avatar {
+         box-sizing: border-box;
           cursor: pointer;
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
+          width: 50px;
+          height: 50px;
+          border-radius: 50px;
+          border: 2px solid #5c5c5c;
     }
     .el-icon-caret-bottom {
         cursor: pointer;

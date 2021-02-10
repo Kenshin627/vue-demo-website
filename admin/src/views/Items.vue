@@ -92,25 +92,26 @@
       >
       </el-pagination>
     </el-row>
-    <el-dialog title="物品详情" :visible.sync="dialogVisible" width="200" @close="closeDialog">
+    <el-dialog :title="dialogTitle + '物品'" :visible.sync="dialogVisible" width="30%" @close="closeDialog">
       <el-form
         ref="form"
-        :model="currentItem"
+        :model="currentModel"
         label-width="80px"
         size="mini"
         :rules="rules"
         status-icon>
             <el-form-item label="物品名称" prop="name">
-                <el-input v-model="currentItem.name"></el-input>
+                <el-input v-model="currentModel.name"></el-input>
             </el-form-item>
             <el-form-item label="图片" prop="image">
                 <el-upload
                     class="avatar-uploader"
                     :action="uploadURL"
+                    :headers="uploadHeader"
                     :show-file-list="false"
                     :on-success="uploadSuccess"
                     :before-upload="beforeUpload">
-                    <img v-if="currentItem.image" :src="currentItem.image" class="avatar">
+                    <img v-if="currentModel.image" :src="currentModel.image" class="avatar">
                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
             </el-form-item>
@@ -135,7 +136,7 @@ export default {
         size: 10,
         name: ''
       },
-      currentItem: {
+      currentModel: {
           name: '',
           image: '',
           _id: null
@@ -156,10 +157,10 @@ export default {
       this.$refs.form.validate(async (valid) => {
         if(valid) {
           let ret = null
-          if(this.currentItem._id) {
-              ret = await edit(this.currentItem)
+          if(this.currentModel._id) {
+              ret = await edit(this.currentModel)
           }else{
-              ret = await create(this.currentItem)
+              ret = await create(this.currentModel)
           }
           let { data: { code, text } }= ret
           if (code === 1) {
@@ -231,7 +232,7 @@ export default {
     async openEdit(id) {
         let { data: { code, data } } = await getById(id)
         if(code === 1) {
-            this.currentItem = data
+            this.currentModel = data
             this.dialogVisible = true
         }else{
             this.$message({
@@ -287,15 +288,16 @@ export default {
       }
     },
     uploadSuccess(res) {
-        this.$set(this.currentItem,'image',res.url)
+        this.$set(this.currentModel,'image',res.url)
     },
     beforeUpload() {
 
     },
     closeDialog() {
-      this.currentItem.name = ''
-      this.currentItem.image = ''
-      this.currentItem._id = null
+      this.currentModel.name = ''
+      this.currentModel.image = ''
+      this.currentModel._id = null
+      this.$refs.form.clearValidate()
     }
   },
   created() {
@@ -319,45 +321,4 @@ export default {
   color: rgb(80, 80, 80);
   padding-top: 10px;
 }
-.table {
-  margin-bottom: 30px;
-}
-.avatar-uploader {
-    border: 1px dashed #d9d9d9;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    width: 100px;
-    height: 100px;
-}
-.avatar-uploader:hover {
-    border-color: #313743;
-}
-.avatar-uploader-icon {
-    font-size: 14px;
-    color: #313743;
-    width: 100px;
-    height: 100px;
-    line-height: 100px;
-    text-align: center;
-
-}
-.avatar {
-    width: 100px;
-    height: 100px;
-    display: block;
-}
->>> .el-pagination.is-background .el-pager li:not(.disabled).active {
-  background-color: #313743;
-}
->>> .el-pagination.is-background .el-pager li:not(.disabled):hover {
-  color: #313743;
-}
-.rowImage{
-    width: 45px;
-    height: 45px;
-    border: 1px solid #ccc;
-}
-
 </style>

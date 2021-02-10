@@ -61,7 +61,7 @@
         </el-table-column>
          <el-table-column prop="avator" label="头像" width="120" align="center">
              <template slot-scope="scope">
-                 <img :src="scope.row.avator" alt="" class="avatorImg">
+                 <img :src="scope.row.avator" alt="" class="rowImage">
              </template>
          </el-table-column>
         <el-table-column label="操作" align="center" width="145">
@@ -97,46 +97,48 @@
       >
       </el-pagination>
     </el-row>
-    <el-dialog :title="currentHero.name?currentHero.name : '未命名'" :visible.sync="dialogVisible" width="200" @close="dialogClose">
-      <el-tabs v-model="activeName">
-        <el-tab-pane label="基础属性" name="base">
+    <el-dialog :title="dialogTitle + '英雄'" :visible.sync="dialogVisible" width="200" @close="dialogClose">
+      
           <el-form
             ref="form"
-            :model="currentHero"
+            :model="currentModel"
             label-width="80px"
             size="mini"
             :rules="rules"
             status-icon
           >
+          <el-tabs v-model="activeName">
+           <el-tab-pane label="基础属性" name="base">
             <el-form-item label="英雄名称" prop="name">
-              <el-input v-model="currentHero.name"></el-input>
+              <el-input v-model="currentModel.name"></el-input>
             </el-form-item>
             <el-form-item label="英雄描述" prop="description">
-                <el-input v-model="currentHero.description"></el-input>
+                <el-input v-model="currentModel.description"></el-input>
             </el-form-item>
             <el-form-item label="头像">
                 <el-upload
                 class="avatar-uploader"
                 :action="uploadURL"
+                :headers="uploadHeader"
                 :show-file-list="false"
                 :on-preview="preview"
                 :on-remove="removeAvator"
                 :on-success="uploadSuccess"
                 :before-upload="beforeUpload">
-                    <img v-if="currentHero.avator" :src="currentHero.avator" class="avatar">
+                    <img v-if="currentModel.avator" :src="currentModel.avator" class="avatar">
                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
                 <el-dialog :visible.sync="previewDialog">
-                    <img width="100%" :src="currentHero.url" alt="">
+                    <img width="100%" :src="currentModel.url" alt="">
                 </el-dialog>
             </el-form-item> 
             <el-form-item label="英雄分类" prop="categories">
-                <el-select v-model="currentHero.categories" multiple :multiple-limit="2">
+                <el-select v-model="currentModel.categories" multiple :multiple-limit="2">
                     <el-option :label="cat.name" :value="cat._id" v-for="cat in heroCategories" :key="cat._id"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="顺风出装">
-              <el-select v-model="currentHero.item1" multiple :multiple-limit="6">
+              <el-select v-model="currentModel.item1" multiple :multiple-limit="6">
                 <el-option
                   v-for="item in heroItems"
                   :key="item._id"
@@ -146,7 +148,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="逆风出装">
-              <el-select v-model="currentHero.item2" multiple :multiple-limit="6">
+              <el-select v-model="currentModel.item2" multiple :multiple-limit="6">
                 <el-option
                   v-for="item in heroItems"
                   :key="item._id"
@@ -156,116 +158,93 @@
               </el-select>
             </el-form-item>
             <el-form-item label="上手难度">
-                <el-rate v-model="currentHero.scores.difficult" :colors="colors" :max="5" show-text :texts="text1"></el-rate>
+                <el-rate v-model="currentModel.scores.difficult" :colors="colors" :max="5" show-text :texts="text1"></el-rate>
             </el-form-item>
             <el-form-item label="技能强度">
-                <el-rate v-model="currentHero.scores.skill" :colors="colors" :max="5" show-text :texts="text2"></el-rate>
+                <el-rate v-model="currentModel.scores.skill" :colors="colors" :max="5" show-text :texts="text2"></el-rate>
             </el-form-item>
             <el-form-item label="攻击强度">
-                <el-rate v-model="currentHero.scores.attack" :colors="colors" :max='5' show-text :texts="text2"></el-rate>
+                <el-rate v-model="currentModel.scores.attack" :colors="colors" :max='5' show-text :texts="text2"></el-rate>
             </el-form-item>
             <el-form-item label="生存系数">
-                <el-rate v-model="currentHero.scores.survive" :colors="colors" :max="5" show-text :texts="text2"></el-rate>
+                <el-rate v-model="currentModel.scores.survive" :colors="colors" :max="5" show-text :texts="text2"></el-rate>
             </el-form-item>
             <el-form-item label="使用技巧">
-              <el-input type="textarea" :rows="1" v-model="currentHero.usageTips"></el-input>
+              <el-input type="textarea" :rows="1" v-model="currentModel.usageTips"></el-input>
             </el-form-item>
             <el-form-item label="对线技巧">
-            <el-input type="textarea" :rows="1" v-model="currentHero.battleTips"></el-input>
+            <el-input type="textarea" :rows="1" v-model="currentModel.battleTips"></el-input>
             </el-form-item>
             <el-form-item label="团战技巧">
-            <el-input type="textarea" :rows="1" v-model="currentHero.teamTips"></el-input>
+            <el-input type="textarea" :rows="1" v-model="currentModel.teamTips"></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="save">保存</el-button>
               <el-button @click="dialogVisible = false">取消</el-button>
             </el-form-item>
-          </el-form>
-        </el-tab-pane>
-        <el-tab-pane label="相生相克" name="relative">
-            <el-form
-            ref="form"
-            :model="currentHero"
-            label-width="50px"
-            size="mini"
-            :rules="rules"
-            status-icon
-            label-position="left">
-            <el-row :gutter="100">
-              <el-col :span="12">
-                <el-button type="success" icon="el-icon-circle-plus" size="mini" @click="addPartner" class="addMates">最佳伙伴</el-button>
-                <div v-for="(partner,index) in currentHero.partners" :key="partner._id" class="form-item-loop">
-                  <el-form-item label="英雄" size="mini">
-                    <el-select v-model="partner._id">
-                      <el-option
-                        v-for="hero in heros"
-                        :key="hero._id"
-                        :label="hero.name"
-                        :value="hero._id">
-                      </el-option>
-                    </el-select>
-                  </el-form-item>
-                  <el-form-item label="描述">
-                    <el-input v-model="partner.description" style="width: 60%"></el-input>
-                  </el-form-item>
-                  <el-form-item>
-                    <el-button type="danger" icon="el-icon-delete" @click="currentHero.partners.splice(index,1)"></el-button>
-                  </el-form-item>
-                </div>
-              </el-col>
-              <el-col :span="12">
-                <el-button type="danger" icon="el-icon-circle-plus" size="mini" @click="addEnemy" class="addMates">天生克星</el-button>
-                <div v-for="(enemy,index) in currentHero.enemies" :key="enemy._id" class="form-item-loop">
-                  <el-form-item label="英雄">
-                    <el-select v-model="enemy._id">
-                      <el-option
-                        v-for="hero in heros"
-                        :key="hero._id"
-                        :label="hero.name"
-                        :value="hero._id">
-                      </el-option>
-                    </el-select>
-                  </el-form-item>
-                  <el-form-item label="描述">
-                    <el-input v-model="enemy.description"  style="width: 60%"></el-input>
-                  </el-form-item>
-                  <el-form-item>
-                    <el-button type="danger" icon='el-icon-delete' @click="currentHero.enemies.splice(index,1)"></el-button>
-                  </el-form-item>
-                </div>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-form-item>
-                <el-button type="primary" @click="save">保存</el-button>
-              </el-form-item>
-            </el-row>
-            </el-form>
-        </el-tab-pane>
-        <el-tab-pane label="技能管理" name="skills">
-          <el-form
-            ref="form"
-            :model="currentHero"
-            label-width="40px"
-            size="mini"
-            :rules="rules"
-            status-icon
-            label-position="left"
-          >
-            <el-button-group class="addSkills">
-              <el-button type="success" icon="el-icon-plus" size="mini" @click="addSkills" ></el-button>
-              <el-button type="primary" icon="el-icon-edit" size='mini' @click='save'>  </el-button>
+            </el-tab-pane>
+            <el-tab-pane label="相生相克" name="relative">
+              <el-row :gutter="100">
+                <el-col :span="12">
+                  <el-button type="success" icon="el-icon-circle-plus" size="mini" @click="addPartner" class="addMates">最佳伙伴</el-button>
+                  <div v-for="(partner,index) in currentModel.partners" :key="partner._id" class="form-item-loop">
+                    <el-form-item label="英雄" size="mini">
+                      <el-select v-model="partner._id">
+                        <el-option
+                          v-for="hero in heros"
+                          :key="hero._id"
+                          :label="hero.name"
+                          :value="hero._id">
+                        </el-option>
+                      </el-select>
+                    </el-form-item>
+                    <el-form-item label="描述">
+                      <el-input v-model="partner.description" style="width: 60%"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                      <el-button type="danger" icon="el-icon-delete" @click="currentModel.partners.splice(index,1)"> 删除</el-button>
+                    </el-form-item>
+                  </div>
+                </el-col>
+                <el-col :span="12">
+                  <el-button type="danger" icon="el-icon-circle-plus" size="mini" @click="addEnemy" class="addMates">天生克星</el-button>
+                  <div v-for="(enemy,index) in currentModel.enemies" :key="enemy._id" class="form-item-loop">
+                    <el-form-item label="英雄">
+                      <el-select v-model="enemy._id">
+                        <el-option
+                          v-for="hero in heros"
+                          :key="hero._id"
+                          :label="hero.name"
+                          :value="hero._id">
+                        </el-option>
+                      </el-select>
+                    </el-form-item>
+                    <el-form-item label="描述">
+                      <el-input v-model="enemy.description"  style="width: 60%"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                      <el-button type="danger" icon='el-icon-delete' @click="currentModel.enemies.splice(index,1)"> 删除</el-button>
+                    </el-form-item>
+                  </div>
+                </el-col>
+              </el-row>
+            </el-tab-pane>
+            <el-tab-pane label="技能管理" name="skills">
+              <el-button-group class="addSkills">
+              <el-button type="success" icon="el-icon-plus" size="mini" @click="addSkills" > 技能</el-button>
+              
             </el-button-group>
             <div
-            v-for="(skill,index) in currentHero.skills" :key="index" class="skillList"
+            v-for="(skill,index) in currentModel.skills" :key="index" class="skillList"
             >
-              <el-form-item label="名称">
+              <el-form-item label="名称" label-potision="left" label-width="70">
                 <el-input v-model="skill.name"></el-input>
               </el-form-item>
               <el-form-item label="图标">
                  <el-upload
                     class="avatar-uploader"
                     :action="uploadURL"
+                    :headers="uploadHeader"
                     :show-file-list="false"
                     :on-preview="preview"
                     :on-remove="removeAvator"
@@ -295,12 +274,13 @@
                 <el-switch v-model="skill.isUlt" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
               </el-form-item>
               <el-form-item>
-                <el-button type="danger" icon="el-icon-delete" @click="currentHero.skills.splice(index,1)"></el-button>
+                <el-button type="danger" icon="el-icon-delete" @click="currentModel.skills.splice(index,1)"> 删除</el-button>
               </el-form-item>
             </div>
+            </el-tab-pane>
+            </el-tabs>
           </el-form>
-        </el-tab-pane>
-      </el-tabs>
+      
     </el-dialog>
   </div>
 </template>
@@ -319,7 +299,7 @@ export default {
         size: 10,
         name: ''
       },
-      currentHero: {
+      currentModel: {
           name: '',
           avator: '',
           description: '',
@@ -344,7 +324,7 @@ export default {
             { required: true, message: '请输入英雄名称', trigger: 'blur' },
         ],
         description: [
-            { required: true, message: '请输入英雄描述',trigger: 'blur' }
+            { required: true, message: '请输入英雄描述',trigger: 'change' }
         ],
         categories: [
             { required: true, message: '请选择英雄分类',trigger: 'blur' } 
@@ -367,27 +347,15 @@ export default {
       this.$refs.form.validate(async (valid) => {
         if(valid) {
           let ret = null
-          if(this.currentHero._id) {
-              ret = await edit(this.currentHero)
+          if(this.currentModel._id) {
+              ret = await edit(this.currentModel)
           }else{
-              ret = await create(this.currentHero)
+              ret = await create(this.currentModel)
           }
           let { data: { code, text } }= ret
-          this.currentHero = {}
           if (code === 1) {
             this.dialogVisible = false;
             this.list();
-            this.currentHero.name = ''
-            this.currentHero.url = ''
-            this.currentHero.categories = [],
-            this.currentHero.description = '',
-            this.currentHero.scores = {
-                difficult: 1,
-                skill: 1,
-                attack: 1,
-                survive: 1
-            }
-            // this.pagination.currentPage = Math.floor(this.pagination.total / this.pagination.size)
             this.$message({
               type: "success",
               message: text,
@@ -452,7 +420,7 @@ export default {
     async openEdit(id) {
         let { data: { code, data } } = await getById(id)
         if(code === 1) {
-            this.currentHero = data
+            this.currentModel = data
             this.dialogVisible = true
         }else{
             this.$message({
@@ -495,29 +463,36 @@ export default {
         })
     },
     uploadSuccess(res) {
-        this.currentHero.avator = res.url
+        this.currentModel.avator = res.url
     },
     beforeUpload() {
 
     },
     removeAvator() {
-        this.currentHero.url = ''
+        this.currentModel.url = ''
     },
     preview() {
         this.previewDialog = true
     },
     dialogClose() {
-        this.currentHero.name = ''
-        this.currentHero.avator = ''
-        this.currentHero._id = null
-        this.currentHero.partners = []
-        this.currentHero.enemies = []
-        this.currentHero.skills = []
+        this.currentModel.name = ''
+        this.currentModel.avator = ''
+        this.currentModel._id = null
+        this.currentModel.partners = []
+        this.currentModel.enemies = []
+        this.currentModel.skills = []
         this.activeName = 'base'
-        this.currentHero.description = ''
-        this.currentHero.categories = []
-        this.currentHero.item1 = []
-        this.currentHero.item2 = []
+        this.currentModel.description = ''
+        this.currentModel.categories = []
+        this.currentModel.item1 = []
+        this.currentModel.item2 = []
+        this.currentModel.scores = {
+          difficult: 1,
+          skill: 1,
+          attack: 1,
+          survive: 1
+        }
+        this.$refs.form.clearValidate()
     },
     async fetchHeroCategories() {
         let { data: { code, text, listData } } = await fetchHeroCategories('hero')
@@ -553,35 +528,35 @@ export default {
       }
     },
     addPartner() {
-      if(this.currentHero.partners.length >= 3) {
+      if(this.currentModel.partners.length >= 3) {
         this.$message({
           type: 'warning',
           message: '最大允许添加3个伙伴'
         })
       }else{
-        this.currentHero.partners.push({
+        this.currentModel.partners.push({
 
       })
       }
     },
     addEnemy() {
-      if(this.currentHero.enemies.length >= 3) {
+      if(this.currentModel.enemies.length >= 3) {
         this.$message({
           type: 'warning',
           message: '最大允许添加3个敌人'
         })
       }else{
-        this.currentHero.enemies.push({})
+        this.currentModel.enemies.push({})
       }
     },
     addSkills() {
-      if(this.currentHero.skills.length >= 4){
+      if(this.currentModel.skills.length >= 4){
         this.$message({
           type: 'info',
           message: '每个英雄最多添加四个技能'
         })
       }else{
-        this.currentHero.skills.push({})
+        this.currentModel.skills.push({})
       }
     },
     uploadSkillPhoto(skill,res) {
@@ -597,59 +572,6 @@ export default {
 };
 </script>
 <style scoped>
-.queryContainer {
-  box-sizing: border-box;
-  padding: 15px 15px 15px 1px;
-  border-radius: 4px;
-  margin-top: 30px;
-  margin-bottom: 30px;
-  box-shadow: 1px 1px 3px 0 #e6e6e6;
-  height: 70px;
-  
-}
-.queryForm {
-  color: rgb(80, 80, 80);
-  padding-top: 10px;
-}
-.table {
-  margin-bottom: 30px;
-}
->>> .el-pagination.is-background .el-pager li:not(.disabled).active {
-  background-color: #313743;
-}
->>> .el-pagination.is-background .el-pager li:not(.disabled):hover {
-  color: #313743;
-}
-.avatar-uploader {
-    border: 1px dashed #313743;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    width: 50px;
-    height: 50px;
-  }
-  .avatar-uploader:hover {
-    border-color: #d9d9d9;
-  }
-  .avatar-uploader-icon {
-    font-size: 14px;
-    color: #313743;
-    width: 50px;
-    height: 50px;
-    line-height: 50px;
-    text-align: center;
-  }
-  .avatar {
-    width: 50px;
-    height: 50px;
-    display: block;
-  }
-  .avatorImg{
-      width: 25px;
-      height: 25px;
-      border: 1px solid #ccc;
-  }
   .heroCat{
       margin-right: 10px;
   }
